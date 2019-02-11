@@ -1,19 +1,21 @@
 # Creates an Azure Service Principle for Terraform
 # Vars
+$adminUserDisplayName = 'Adam Rush' # This is used to assign yourself access to KeyVault
 $servicePrincipleName = 'terraform'
 $password = 'MyStrongPassw0rd!'
 $resourceGroupName = 'terraform-mgmt-rg'
 $location = 'eastus'
 $storageAccountSku = 'Standard_LRS'
+$storageContainerName = 'terraform-state'
 
-$randomPrefix = -join ((48..57) + (97..122) | Get-Random -Count 10 | ForEach-Object {[char]$_})
+# Prepend random prefix with A character, as some resources cannot start with a number
+$randomPrefix = "a" + -join ((48..57) + (97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_})
 $vaultName = "$randomPrefix-terraform-kv"
 $storageAccountName = "$($randomPrefix)terraform"
-$storageContainerName = 'terraform-state'
 
 
 #region New Terraform SP
-$taskMessage = "Creating a Service Principle for Terraform"
+$taskMessage = "Creating Terraform Service Principle: [$servicePrincipleName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azADApplicationParams = @{
@@ -57,7 +59,7 @@ $terraformLoginVars | Out-String | Write-Host
 
 
 #region New resource group
-$taskMessage = "Creating a new resource group for Terraform Management"
+$taskMessage = "Creating Terraform Management resource group: [$resourceGroupName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azResourceGroupParams = @{
@@ -76,7 +78,7 @@ Write-Host "FINISHED: $taskMessage."
 
 
 #region New KeyVault
-$taskMessage = "Creating KeyVault for Terraform login details"
+$taskMessage = "Creating Terraform KeyVault: [$vaultName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azKeyVaultParams = @{
@@ -96,7 +98,28 @@ Write-Host "FINISHED: $taskMessage."
 
 
 #region Set KeyVault Access Policy
-$taskMessage = "Setting KeyVault Access Policy for Terraform SP"
+$taskMessage = "Setting KeyVault Access Policy for Admin User: [$adminUserDisplayName]"
+Write-Host "STARTED: $taskMessage..."
+$adminADUser = Get-AzADUser -DisplayName $adminUserDisplayName
+try {
+    $azKeyVaultAccessPolicyParams = @{
+        VaultName                 = $vaultName
+        ResourceGroupName         = $resourceGroupName
+        ObjectId                  = $adminADUser.Id
+        PermissionsToKeys         = @('Get', 'List')
+        PermissionsToSecrets      = @('Get', 'List', 'Set')
+        PermissionsToCertificates = @('Get', 'List')
+        ErrorAction               = 'Stop'
+        Verbose                   = $true
+    }
+    Set-AzKeyVaultAccessPolicy @azKeyVaultAccessPolicyParams
+} catch {
+    Write-Error -Message "ERROR: $taskMessage." -ErrorAction 'Continue'
+    throw $_
+}
+Write-Host "FINISHED: $taskMessage."
+
+$taskMessage = "Setting KeyVault Access Policy for Terraform SP: [$servicePrincipleName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azKeyVaultAccessPolicyParams = @{
@@ -119,7 +142,7 @@ Write-Host "FINISHED: $taskMessage."
 
 
 #region Create KeyVault Secrets
-$taskMessage = "Setting KeyVault Secrets for Terraform SP"
+$taskMessage = "Creating KeyVault Secrets for Terraform"
 Write-Host "STARTED: $taskMessage..."
 try {
     foreach ($terraformLoginVar in $terraformLoginVars.GetEnumerator()) {
@@ -141,7 +164,7 @@ Write-Host "FINISHED: $taskMessage."
 
 
 #region New Storage Account
-$taskMessage = "Creating a new Storage Account for Terraform backend state"
+$taskMessage = "Creating Terraform backend Storage Account: [$storageAccountName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azStorageAccountParams = @{
@@ -182,7 +205,7 @@ Write-Host "FINISHED: $taskMessage."
 
 
 #region New Storage Container
-$taskMessage = "Creating a new Storage Container for Terraform State"
+$taskMessage = "Creating Terraform State Storage Container: [$storageContainerName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azStorageContainerParams = @{
@@ -198,4 +221,3 @@ try {
 }
 Write-Host "FINISHED: $taskMessage."
 #endregion New Storage Container
-
