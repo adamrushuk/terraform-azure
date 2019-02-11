@@ -1,6 +1,6 @@
 # Creates an Azure Service Principle for Terraform
 # Vars
-$servicePrincipleName = 'terraform3'
+$servicePrincipleName = 'terraform'
 $password = 'MyStrongPassw0rd!'
 $resourceGroupName = 'terraform-mgmt-rg'
 $location = 'eastus'
@@ -9,6 +9,7 @@ $storageAccountSku = 'Standard_LRS'
 $randomPrefix = -join ((48..57) + (97..122) | Get-Random -Count 10 | ForEach-Object {[char]$_})
 $vaultName = "$randomPrefix-terraform-kv"
 $storageAccountName = "$($randomPrefix)terraform"
+$storageContainerName = 'terraform-state'
 
 
 #region New Terraform SP
@@ -94,8 +95,8 @@ Write-Host "FINISHED: $taskMessage."
 #endregion New KeyVault
 
 
-#region Set KeyVault Access
-$taskMessage = "Setting KeyVault Access for Terraform"
+#region Set KeyVault Access Policy
+$taskMessage = "Setting KeyVault Access Policy for Terraform SP"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azKeyVaultAccessPolicyParams = @{
@@ -114,11 +115,11 @@ try {
     throw $_
 }
 Write-Host "FINISHED: $taskMessage."
-#endregion Set KeyVault Access
+#endregion Set KeyVault Access Policy
 
 
 #region Create KeyVault Secrets
-$taskMessage = "Setting KeyVault Secrets for Terraform"
+$taskMessage = "Setting KeyVault Secrets for Terraform SP"
 Write-Host "STARTED: $taskMessage..."
 try {
     foreach ($terraformLoginVar in $terraformLoginVars.GetEnumerator()) {
@@ -161,8 +162,7 @@ Write-Host "FINISHED: $taskMessage."
 #endregion New Storage Account
 
 
-# https://www.jonathanmedd.net/2017/01/create-an-azure-storage-blob-container-with-powershell.html
-#region New Storage Container
+#region Account Storage Container
 $taskMessage = "Selecting Default Storage Account"
 Write-Host "STARTED: $taskMessage..."
 try {
@@ -173,10 +173,29 @@ try {
         Verbose           = $true
     }
     $currentStorageAccount = Set-AzCurrentStorageAccount @azCurrentStorageAccountParams
+} catch {
+    Write-Error -Message "ERROR: $taskMessage." -ErrorAction 'Continue'
+    throw $_
+}
+Write-Host "FINISHED: $taskMessage."
+#endregion Select Storage Account
 
+
+#region New Storage Container
+$taskMessage = "Creating a new Storage Container for Terraform State"
+Write-Host "STARTED: $taskMessage..."
+try {
+    $azStorageContainerParams = @{
+        Name        = $storageContainerName
+        Permission  = 'Off'
+        ErrorAction = 'Stop'
+        Verbose     = $true
+    }
+    $storageContainer = New-AzStorageContainer @azStorageContainerParams
 } catch {
     Write-Error -Message "ERROR: $taskMessage." -ErrorAction 'Continue'
     throw $_
 }
 Write-Host "FINISHED: $taskMessage."
 #endregion New Storage Container
+
