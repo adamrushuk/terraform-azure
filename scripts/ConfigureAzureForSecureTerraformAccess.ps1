@@ -1,10 +1,39 @@
-# Creates an Azure Service Principle for Terraform
-# Assumes you are already logged into Azure (eg. Connect-AzAccount)
+<#
+.SYNOPSIS
+    Configures Azure for secure Terraform access.
+.DESCRIPTION
+    Configures Azure for secure Terraform access using Azure Key Vault.
 
-# Vars
+    The following steps are automated:
+    - Creates an Azure Service Principle for Terraform.
+    - Creates a new Resource Group.
+    - Creates a new Storage Account.
+    - Creates a new Storage Container.
+    - Creates a new Key Vault.
+    - Configures Key Vault Access Policies.
+    - Creates Key Vault Secrets for these sensitive Terraform login details:
+        - ARM_SUBSCRIPTION_ID
+        - ARM_CLIENT_ID
+        - ARM_CLIENT_SECRET
+        - ARM_TENANT_ID
+        - ARM_ACCESS_KEY
+.NOTES
+    Assumptions:
+    - Azure PowerShell module is installed: https://docs.microsoft.com/en-us/powershell/azure/install-az-ps
+    - Azure CLI is installed: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows
+    - You are already logged into Azure before running this script (eg. Connect-AzAccount)
+
+    Author:  Adam Rush
+    Blog:    https://adamrushuk.github.io
+    GitHub:  https://github.com/adamrushuk
+    Twitter: @adamrushuk
+#>
+
+
+#region Variables
 $adminUserDisplayName = 'Adam Rush' # This is used to assign yourself access to KeyVault
 $servicePrincipleName = 'terraform'
-$password = 'MyStrongPassw0rd!'
+$servicePrinciplePassword = 'MyStrongPassw0rd!'
 $resourceGroupName = 'terraform-mgmt-rg'
 $location = 'eastus'
 $storageAccountSku = 'Standard_LRS'
@@ -14,20 +43,21 @@ $storageContainerName = 'terraform-state'
 $randomPrefix = "a" + -join ((48..57) + (97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_})
 $vaultName = "$randomPrefix-terraform-kv"
 $storageAccountName = "$($randomPrefix)terraform"
+#endregion Variables
 
 
-#region New Terraform SP
+#region New Terraform SP (Service Principal)
 $taskMessage = "Creating Terraform Service Principle: [$servicePrincipleName] using Azure CLI"
 Write-Host "STARTED: $taskMessage..."
 try {
-    & az ad sp create-for-rbac --name $servicePrincipleName --password $password
+    az ad sp create-for-rbac --name $servicePrincipleName --password $servicePrinciplePassword
     $terraformSP = Get-AzADServicePrincipal -DisplayName  $servicePrincipleName -ErrorAction 'Stop'
 } catch {
     Write-Error -Message "ERROR: $taskMessage." -ErrorAction 'Continue'
     throw $_
 }
 Write-Host "FINISHED: $taskMessage."
-#endregion New Terraform SP
+#endregion New Terraform SP (Service Principal)
 
 
 #region Get Subscription
@@ -43,8 +73,8 @@ Write-Host "FINISHED: $taskMessage."
 #endregion Get Subscription
 
 
-#region New resource group
-$taskMessage = "Creating Terraform Management resource group: [$resourceGroupName]"
+#region New Resource Group
+$taskMessage = "Creating Terraform Management Resource Group: [$resourceGroupName]"
 Write-Host "STARTED: $taskMessage..."
 try {
     $azResourceGroupParams = @{
@@ -59,7 +89,7 @@ try {
     throw $_
 }
 Write-Host "FINISHED: $taskMessage."
-#endregion New resource group
+#endregion New Resource Group
 
 
 #region New Storage Account
@@ -84,7 +114,7 @@ Write-Host "FINISHED: $taskMessage."
 #endregion New Storage Account
 
 
-#region Account Storage Container
+#region Select Storage Container
 $taskMessage = "Selecting Default Storage Account"
 Write-Host "STARTED: $taskMessage..."
 try {
@@ -194,7 +224,7 @@ $storageAccessKey = $storageAccessKeys[0].Value # only need one of the keys
 $terraformLoginVars = @{
     'ARM-SUBSCRIPTION-ID' = $subscription.Id
     'ARM-CLIENT-ID'       = $terraformSP.ApplicationId
-    'ARM-CLIENT-SECRET'   = $password
+    'ARM-CLIENT-SECRET'   = $servicePrinciplePassword
     'ARM-TENANT-ID'       = $subscription.TenantId
     'ARM-ACCESS-KEY'      = $storageAccessKey
 }
