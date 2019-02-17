@@ -25,9 +25,11 @@
 #>
 
 
-# Variables
-# Find the Azure Key Vault that includes this string in it's name
-$keyVaultSearchString = 'terraform-kv'
+[CmdletBinding()]
+param (
+    # Find the Azure Key Vault that includes this string in it's name
+    $keyVaultSearchString = 'terraform-kv'
+)
 
 
 #region Helper function for padded messages
@@ -68,6 +70,20 @@ function Write-HostPadded {
 #endregion Helper function for padded messages
 
 
+#region Check Azure login
+Write-HostPadded -Message "Checking for an active Azure login..." -NoNewline
+
+# Get current context
+$azContext = Get-AzContext
+
+if (-not $azContext) {
+    Write-Host "ERROR!" -ForegroundColor 'Red'
+    throw "There is no active login for Azure. Please login first (eg 'Connect-AzAccount' and 'az login'"
+}
+Write-Host "SUCCESS!" -ForegroundColor 'Green'
+#endregion Check Azure login
+
+
 #region Identify Azure Key Vault
 $loadMessage = "loading Terraform environment variables just for this PowerShell session"
 Write-Host "`nSTARTED: $loadMessage" -ForegroundColor 'Green'
@@ -94,7 +110,7 @@ $secretNames = @(
 )
 $terraformEnvVars = @{}
 
-# Compile Terraform environment vars
+# Compile Get Azure KeyVault Secrets
 foreach ($secretName in $secretNames) {
     try {
         # Retrieve secret
