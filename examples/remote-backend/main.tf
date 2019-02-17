@@ -1,8 +1,9 @@
 # Create a Remote Backend
 terraform {
   backend "azurerm" {
-    # storage_account_name = "<REPLACE-WITH-YOUR-STORAGE-ACCOUNT-NAME>" # This needs to be changed manually as variables are not supported
-    storage_account_name = "am1ojbxsfterraform" # This needs to be changed manually as variables are not supported
+    # storage_account_name needs to be changed manually as variables are not supported.
+    # Should be a format like "<random chars>terraform", eg: "am1ojbxsfterraform"
+    storage_account_name = "<REPLACE-WITH-YOUR-STORAGE-ACCOUNT-NAME>"
     container_name       = "terraform-state"
     key                  = "terraform.tfstate"
 
