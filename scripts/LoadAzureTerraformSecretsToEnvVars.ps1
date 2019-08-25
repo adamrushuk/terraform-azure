@@ -78,7 +78,7 @@ $azContext = Get-AzContext
 
 if (-not $azContext) {
     Write-Host "ERROR!" -ForegroundColor 'Red'
-    throw "There is no active login for Azure. Please login first (eg 'Connect-AzAccount' and 'az login'"
+    throw "There is no active login for Azure. Please login first (eg 'Connect-AzAccount')"
 }
 Write-Host "SUCCESS!" -ForegroundColor 'Green'
 #endregion Check Azure login

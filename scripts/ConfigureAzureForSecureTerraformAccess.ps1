@@ -20,7 +20,6 @@
 .NOTES
     Assumptions:
     - Azure PowerShell module is installed: https://docs.microsoft.com/en-us/powershell/azure/install-az-ps
-    - Azure CLI is installed: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows
     - You are already logged into Azure before running this script (eg. Connect-AzAccount)
 
     Author:  Adam Rush
@@ -35,13 +34,12 @@ param (
     # This is used to assign yourself access to KeyVault
     $adminUserDisplayName = '<Joe Bloggs>',
     $servicePrincipleName = 'terraform',
-    $servicePrinciplePassword = 'MyStrongPassw0rd!',
     $resourceGroupName = 'terraform-mgmt-rg',
     $location = 'eastus',
     $storageAccountSku = 'Standard_LRS',
     $storageContainerName = 'terraform-state',
     # Prepend random prefix with A character, as some resources cannot start with a number
-    $randomPrefix = ("a" + -join ((48..57) + (97..122) | Get-Random -Count 8 | ForEach-Object {[char]$_})),
+    $randomPrefix = ("a" + -join ((48..57) + (97..122) | Get-Random -Count 8 | ForEach-Object { [char]$_ })),
     $vaultName = "$randomPrefix-terraform-kv",
     $storageAccountName = "$($randomPrefix)terraform"
 )
@@ -93,17 +91,17 @@ $azContext = Get-AzContext
 
 if (-not $azContext) {
     Write-Host "ERROR!" -ForegroundColor 'Red'
-    throw "There is no active login for Azure. Please login first (eg 'Connect-AzAccount' and 'az login'"
+    throw "There is no active login for Azure. Please login first (eg 'Connect-AzAccount'"
 }
 Write-Host "SUCCESS!" -ForegroundColor 'Green'
 #endregion Check Azure login
 
 
 #region New Terraform SP (Service Principal)
-Write-HostPadded -Message "Using Azure CLI to Create a Terraform Service Principle: [$servicePrincipleName] ..." -NoNewline
+Write-HostPadded -Message "Creating a Terraform Service Principle: [$servicePrincipleName] ..." -NoNewline
 try {
-    az ad sp create-for-rbac --name $servicePrincipleName --password $servicePrinciplePassword | Out-String | Write-Verbose
-    $terraformSP = Get-AzADServicePrincipal -DisplayName  $servicePrincipleName -ErrorAction 'Stop'
+    $terraformSP = New-AzADServicePrincipal -DisplayName $servicePrincipleName -ErrorAction 'Stop'
+    $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $terraformSP.Secret).GetNetworkCredential().Password
 } catch {
     Write-Host "ERROR!" -ForegroundColor 'Red'
     throw $_
@@ -132,6 +130,7 @@ try {
     $azResourceGroupParams = @{
         Name        = $resourceGroupName
         Location    = $location
+        Tag         = @{ keep = "true" }
         ErrorAction = 'Stop'
         Verbose     = $VerbosePreference
     }

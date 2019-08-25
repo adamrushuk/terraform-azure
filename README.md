@@ -17,8 +17,7 @@ Before you can securely use Terraform with Azure, you will need to action the fo
 ### Install Azure Dependencies / Log in to Azure
 
 1. [Install the Azure PowerShell module](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps).
-1. [Install the Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-windows).
-1. Ensure you are logged in to Azure (eg. `Connect-AzAccount`, `az login`)
+1. Ensure you are logged in to Azure (eg. `Connect-AzAccount`)
 
 ### Configure Azure for Secure Terraform Access
 
