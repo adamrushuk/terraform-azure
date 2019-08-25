@@ -5,3 +5,7 @@ variable "admin_username" {}
 variable "address_space" {
   type = "list"
 }
+variable "vm_image_publisher" {}
+variable "vm_image_offer" {}
+variable "vm_image_sku" {}
+variable "vm_image_version" {}

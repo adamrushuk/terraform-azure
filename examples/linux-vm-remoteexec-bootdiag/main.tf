@@ -134,10 +134,10 @@ resource "azurerm_virtual_machine" "myterraformvm" {
   }
 
   storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
+    publisher = "${var.vm_image_publisher}"
+    offer     = "${var.vm_image_offer}"
+    sku       = "${var.vm_image_sku}"
+    version   = "${var.vm_image_version}"
   }
 
   os_profile {
@@ -174,11 +174,20 @@ resource "null_resource" "init" {
     timeout     = "1m"
   }
 
-  # Provisioning
+  # Inline script
   provisioner "remote-exec" {
     inline = [
-      "sudo apt-get install -y tree git vim bash-completion",
+      "who",
+      "whoami",
       "hostname",
+    ]
+  }
+
+  # Upload and run multiple scripts
+  provisioner "remote-exec" {
+    scripts = [
+      "scripts/install_common.sh",
+      "scripts/install_ansible.sh"
     ]
   }
 
