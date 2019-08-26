@@ -174,20 +174,24 @@ resource "null_resource" "init" {
     timeout     = "1m"
   }
 
-  # Inline script
-  provisioner "remote-exec" {
-    inline = [
-      "who",
-      "whoami",
-      "hostname",
-    ]
-  }
-
   # Upload and run multiple scripts
   provisioner "remote-exec" {
     scripts = [
       "scripts/install_common.sh",
       "scripts/install_ansible.sh"
+    ]
+  }
+
+  # Run inline code
+  provisioner "remote-exec" {
+    inline = [
+      "who",
+      "whoami",
+      "hostname",
+      "which pip",
+      "pip -V",
+      "which ansible",
+      "ansible --version"
     ]
   }
 
