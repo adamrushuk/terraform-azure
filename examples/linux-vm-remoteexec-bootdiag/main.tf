@@ -185,6 +185,7 @@ resource "null_resource" "init" {
   # Run inline code
   provisioner "remote-exec" {
     inline = [
+      "source ~/python-env/ansible2.8.4/bin/activate",
       "who",
       "whoami",
       "hostname",
