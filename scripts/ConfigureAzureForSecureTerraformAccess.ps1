@@ -32,7 +32,7 @@
 [CmdletBinding()]
 param (
     # This is used to assign yourself access to KeyVault
-    $adminUserDisplayName = '<Joe Bloggs>',
+    $adminUserDisplayName = '<Admin Username>',
     $servicePrincipleName = 'terraform',
     $resourceGroupName = 'terraform-mgmt-rg',
     $location = 'eastus',
@@ -100,7 +100,7 @@ Write-Host "SUCCESS!" -ForegroundColor 'Green'
 #region New Terraform SP (Service Principal)
 Write-HostPadded -Message "Creating a Terraform Service Principle: [$servicePrincipleName] ..." -NoNewline
 try {
-    $terraformSP = New-AzADServicePrincipal -DisplayName $servicePrincipleName -ErrorAction 'Stop'
+    $terraformSP = New-AzADServicePrincipal -DisplayName $servicePrincipleName -Role 'Contributor' -ErrorAction 'Stop'
     $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $terraformSP.Secret).GetNetworkCredential().Password
 } catch {
     Write-Host "ERROR!" -ForegroundColor 'Red'
