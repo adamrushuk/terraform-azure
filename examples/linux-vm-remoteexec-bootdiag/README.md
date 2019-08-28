@@ -4,7 +4,7 @@ This example provisions a Linux VM with boot diagnositcs enabled, and runs both 
 
 ## Connect
 
-To connect to the VM in Azure, check the `public_ip_dns_name` output and start an SSH session,
+To connect to the VM in Azure, run the command shown after running `terraform output ssh_connection`,
 eg: `ssh azureuser@myvmdb0178b07315a538.eastus.cloudapp.azure.com`
 
 ## Activate Virtual Environment

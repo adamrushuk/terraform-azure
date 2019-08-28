@@ -12,23 +12,23 @@ terraform {
 
 # Create a resource group if it doesn’t exist
 resource "azurerm_resource_group" "myterraformgroup" {
-  name     = "myResourceGroup"
-  location = "${var.location}"
+  name     = var.resource_group_name
+  location = var.location
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
 # Create virtual network
 resource "azurerm_virtual_network" "myterraformnetwork" {
   name                = "myVnet"
-  address_space       = "${var.address_space}"
+  address_space       = var.address_space
   location            = azurerm_resource_group.myterraformgroup.location
   resource_group_name = azurerm_resource_group.myterraformgroup.name
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
@@ -49,7 +49,7 @@ resource "azurerm_public_ip" "myterraformpublicip" {
   domain_name_label   = "myvm${random_id.randomId.hex}"
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
@@ -72,7 +72,7 @@ resource "azurerm_network_security_group" "myterraformnsg" {
   }
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
@@ -91,7 +91,7 @@ resource "azurerm_network_interface" "myterraformnic" {
   }
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
@@ -114,7 +114,7 @@ resource "azurerm_storage_account" "mystorageaccount" {
   account_replication_type = "LRS"
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
@@ -124,7 +124,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
   location              = azurerm_resource_group.myterraformgroup.location
   resource_group_name   = azurerm_resource_group.myterraformgroup.name
   network_interface_ids = [azurerm_network_interface.myterraformnic.id]
-  vm_size               = "Standard_DS1_v2"
+  vm_size               = var.vm_size
 
   storage_os_disk {
     name              = "myOsDisk"
@@ -134,15 +134,15 @@ resource "azurerm_virtual_machine" "myterraformvm" {
   }
 
   storage_image_reference {
-    publisher = "${var.vm_image_publisher}"
-    offer     = "${var.vm_image_offer}"
-    sku       = "${var.vm_image_sku}"
-    version   = "${var.vm_image_version}"
+    publisher = var.vm_image_publisher
+    offer     = var.vm_image_offer
+    sku       = var.vm_image_sku
+    version   = var.vm_image_version
   }
 
   os_profile {
     computer_name  = "myvm"
-    admin_username = "${var.admin_username}"
+    admin_username = var.admin_username
   }
 
   os_profile_linux_config {
@@ -160,7 +160,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
   }
 
   tags = {
-    environment = "Terraform Demo"
+    environment = var.environment
   }
 }
 
@@ -169,7 +169,7 @@ resource "null_resource" "init" {
   connection {
     host        = azurerm_public_ip.myterraformpublicip.fqdn
     type        = "ssh"
-    user        = "${var.admin_username}"
+    user        = var.admin_username
     private_key = file("~/.ssh/id_rsa")
     timeout     = "1m"
   }
