@@ -131,6 +131,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Premium_LRS"
+    disk_size_gb      = 64
   }
 
   storage_image_reference {
