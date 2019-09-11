@@ -144,10 +144,11 @@ resource "azurerm_virtual_machine" "myterraformvm" {
   os_profile {
     computer_name  = "myvm"
     admin_username = var.admin_username
+    admin_password = var.admin_password
   }
 
   os_profile_linux_config {
-    disable_password_authentication = true
+    disable_password_authentication = false
 
     ssh_keys {
       path     = "/home/${var.admin_username}/.ssh/authorized_keys"

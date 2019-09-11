@@ -3,6 +3,7 @@ environment         = "linux-vm-remote-exec"
 location            = "eastus"
 resource_group_name = "linux-remote-exec-rg"
 admin_username      = "azureuser"
+admin_password      = "Pa55word!Pa55word!"
 address_space       = ["10.0.0.0/16"]
 vm_size             = "Standard_B1s"
 vm_image_publisher  = "OpenLogic"
