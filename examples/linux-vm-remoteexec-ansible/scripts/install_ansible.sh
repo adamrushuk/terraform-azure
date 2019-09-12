@@ -17,6 +17,6 @@ pip -V
 # Install Ansible and pywinrm (for Windows support)
 pip install --upgrade pip setuptools
 pip install ansible[azure]==2.8.4
-pip install pywinrm
 
+pip install pywinrm
 echo "INFO: Finished Installing Ansible."
