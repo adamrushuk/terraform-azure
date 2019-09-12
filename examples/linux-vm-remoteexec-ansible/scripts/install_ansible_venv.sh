@@ -14,10 +14,13 @@ mkdir -p ~/python-env
 cd ~/python-env
 python36 -m venv ansible2.8.4
 source ~/python-env/ansible2.8.4/bin/activate
-pip -V
+
+# Upgrade pip
+pip3 -V
+sudo pip3 install --upgrade pip setuptools
+pip3 -V
 
 # Install Ansible and pywinrm (for Windows support)
-pip install --upgrade pip setuptools
 pip install ansible[azure]==2.8.4
 pip install pywinrm
 echo "INFO: Finished Installing Ansible."
