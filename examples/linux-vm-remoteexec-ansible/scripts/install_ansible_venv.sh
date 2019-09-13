@@ -5,7 +5,6 @@
 echo "INFO: Started Installing Ansible..."
 sudo yum check-update
 sudo yum -y install gcc libffi-devel python-devel openssl-devel epel-release
-# sudo yum -y install python-pip python-wheel
 sudo yum -y install python36 python36-pip
 
 # Configure virtual environment for Python 3 / Ansible 2.8.4

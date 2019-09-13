@@ -179,13 +179,14 @@ resource "null_resource" "init" {
   # Upload and run script(s)
   provisioner "remote-exec" {
     scripts = [
-      "scripts/install_ansible_full.sh"
+      "scripts/install_ansible_venv.sh"
     ]
   }
 
   # Run inline code
   provisioner "remote-exec" {
     inline = [
+      "source ~/python-env/ansible2.8.4/bin/activate",
       "whoami",
       "hostname",
       "which pip",
