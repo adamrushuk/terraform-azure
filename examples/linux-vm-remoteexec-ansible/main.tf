@@ -4,7 +4,7 @@
 # Configure Providers
 provider "azurerm" {
   # Pin version as per best practice
-  version = "=1.33.0"
+  version = "=1.33.1"
 }
 terraform {
   required_version = ">= 0.12"
@@ -120,11 +120,13 @@ resource "azurerm_storage_account" "mystorageaccount" {
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "myterraformvm" {
-  name                  = "myVM"
-  location              = azurerm_resource_group.myterraformgroup.location
-  resource_group_name   = azurerm_resource_group.myterraformgroup.name
-  network_interface_ids = [azurerm_network_interface.myterraformnic.id]
-  vm_size               = var.vm_size
+  name                             = "myVM"
+  location                         = azurerm_resource_group.myterraformgroup.location
+  resource_group_name              = azurerm_resource_group.myterraformgroup.name
+  network_interface_ids            = [azurerm_network_interface.myterraformnic.id]
+  vm_size                          = var.vm_size
+  delete_os_disk_on_termination    = true
+  delete_data_disks_on_termination = true
 
   storage_os_disk {
     name              = "myOsDisk"
@@ -168,18 +170,16 @@ resource "azurerm_virtual_machine" "myterraformvm" {
 resource "null_resource" "init" {
   # Define connection
   connection {
-    host        = azurerm_public_ip.myterraformpublicip.fqdn
-    type        = "ssh"
-    user        = var.admin_username
+    type = "ssh"
+    host = azurerm_public_ip.myterraformpublicip.fqdn
+    user = var.admin_username
     private_key = file("~/.ssh/id_rsa")
-    timeout     = "1m"
   }
 
-  # Upload and run multiple scripts
+  # Upload and run script(s)
   provisioner "remote-exec" {
     scripts = [
-      "scripts/install_common.sh",
-      "scripts/install_ansible.sh"
+      "scripts/install_ansible_venv.sh"
     ]
   }
 
@@ -187,7 +187,6 @@ resource "null_resource" "init" {
   provisioner "remote-exec" {
     inline = [
       "source ~/python-env/ansible2.8.4/bin/activate",
-      "who",
       "whoami",
       "hostname",
       "which pip",
