@@ -14,4 +14,8 @@ ssh azureuser@<VMNAME>.eastus.cloudapp.azure.com
 
 source ~/python-env/ansible2.8.4/bin/activate
 
+terraform destroy -auto-approve
+
+<# WARNING: Deletes EVERYTHING not tagged "keep"
 ~\Code\terraform-azure\scripts\Delete-ResourceGroupNotTaggedKeep.ps1
+#>
