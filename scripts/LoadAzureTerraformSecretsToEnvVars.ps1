@@ -13,6 +13,10 @@
         - ARM_CLIENT_SECRET
         - ARM_TENANT_ID
         - ARM_ACCESS_KEY
+.EXAMPLE
+    .\scripts\LoadAzureTerraformSecretsToEnvVars.ps1
+
+    Loads Azure Key Vault secrets into Terraform environment variables for the current PowerShell session
 .NOTES
     Assumptions:
     - Azure PowerShell module is installed: https://docs.microsoft.com/en-us/powershell/azure/install-az-ps
