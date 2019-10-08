@@ -1,6 +1,6 @@
 # Hub-spoke network TF build testing
 # Navigate to example folder
-cd ~\Code\terraform-azure\examples\hub-spoke-network
+cd examples\hub-spoke-network
 
 # Run Terraform
 terraform init
