@@ -2,7 +2,7 @@
 terraform {
   backend "azurerm" {
     # storage_account_name needs to be changed manually as variables are not supported.
-    # Should be a format like "<random chars>terraform", eg: "am1ojbxsfterraform"
+    # Should be a format like "<random chars>terraform", eg: "ac1riyvpdterraform"
     storage_account_name = "<REPLACE-WITH-YOUR-STORAGE-ACCOUNT-NAME>"
     container_name       = "terraform-state"
     key                  = "terraform.tfstate"

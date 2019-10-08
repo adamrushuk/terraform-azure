@@ -30,6 +30,9 @@ Load Azure Key Vault secrets into Terraform environment variables for the curren
 ```powershell
 # Run env var load script
 .\scripts\LoadAzureTerraformSecretsToEnvVars.ps1
+
+# Confirm env vars loaded
+ls env:ARM*
 ```
 
 ### Running Terraform
