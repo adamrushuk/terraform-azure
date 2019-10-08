@@ -1,5 +1,5 @@
 locals {
-  prefix-hub         = "${random_id.prefix.hex}-hub"
+  prefix-hub         = "hub"
   hub-location       = "uksouth"
   hub-resource-group = "hub-vnet-rg"
   shared-key         = "4-v3ry-53cr37-1p53c-5h4r3d-k3y"

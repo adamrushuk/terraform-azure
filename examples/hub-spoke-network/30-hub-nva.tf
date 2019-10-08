@@ -1,5 +1,5 @@
 locals {
-  prefix-hub-nva         = "${random_id.prefix.hex}-hub-nva"
+  prefix-hub-nva         = "hub-nva"
   hub-nva-location       = "uksouth"
   hub-nva-resource-group = "hub-nva-rg"
 }

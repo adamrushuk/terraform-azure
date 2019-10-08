@@ -1,7 +1,7 @@
 locals {
   spoke1-location       = "uksouth"
   spoke1-resource-group = "spoke1-vnet-rg"
-  prefix-spoke1         = "${random_id.prefix.hex}-spoke1"
+  prefix-spoke1         = "spoke1"
 }
 
 resource "azurerm_resource_group" "spoke1-vnet-rg" {

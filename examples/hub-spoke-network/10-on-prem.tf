@@ -1,7 +1,7 @@
 locals {
   onprem-location       = "uksouth"
   onprem-resource-group = "onprem-vnet-rg"
-  prefix-onprem         = "${random_id.prefix.hex}-onprem"
+  prefix-onprem         = "onprem"
 }
 
 resource "azurerm_resource_group" "onprem-vnet-rg" {
