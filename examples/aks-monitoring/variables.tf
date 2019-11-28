@@ -8,6 +8,11 @@ variable "location" {
   default     = "uksouth"
 }
 
+variable "node_count" {
+  description = "The initial number of nodes which should exist within this Node Pool"
+  default     = 2
+}
+
 variable "kubernetes_client_id" {
   description = "The Client ID for the Service Principal to use for this Managed Kubernetes Cluster"
 }
