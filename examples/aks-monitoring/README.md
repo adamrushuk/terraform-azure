@@ -14,7 +14,7 @@ Create the following environment variables so Terraform can connect to Azure:
 Typically you would dot source (load) these values from a secure file, eg:
 
 ```powershell
-. $env:HOME\.azdev.ps1
+. $env:HOME/.azdev.ps1
 ```
 
 Environment variables should also be created for sensitive values like the AKS Service Principle values:
@@ -40,24 +40,25 @@ $env:TF_VAR_kubernetes_client_secret = "<MyAzureSpClientSecret>"
 
 # [Optional] Reuse current ARM env vars
 # Load standard env vars for Azure/TF
-. $env:HOME\.azdev.ps1
+. $env:HOME/.azdev.ps1
 $env:TF_VAR_kubernetes_client_id = $env:ARM_CLIENT_ID
 $env:TF_VAR_kubernetes_client_secret = $env:ARM_CLIENT_SECRET
 # Show env vars
-gci env:ARM*
-gci env:TF_VAR*
+gci env:ARM*; gci env:TF_VAR*
+
 ```
 
 ## Install AKS with Terraform
 
 ```powershell
 # Navigate to correct example folder
-cd .\examples\aks-monitoring
+cd ./examples/aks-monitoring/
 
 # Run Terraform
 terraform init
 terraform plan
-..\..\scripts\Invoke-Terraform.ps1 -Command "apply"
+../../scripts/Invoke-Terraform.ps1 -Command "apply"
+
 
 # Get the access credentials for the Kubernetes cluster
 # Creds are merged into your current console session, eg:
@@ -80,6 +81,7 @@ kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-adm
 # https://linkerd.io/2/getting-started/
 
 # Check context
+kubectl config get-contexts
 kubectl config current-context
 
 # View nodes
@@ -122,3 +124,7 @@ start http://localhost:50750/grafana
 linkerd -n emojivoto stat deploy
 linkerd -n emojivoto tap deploy/web
 ```
+
+## Destroy
+
+../../scripts/Invoke-Terraform.ps1 -Command "destroy"
