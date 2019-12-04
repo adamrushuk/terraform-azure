@@ -2,6 +2,6 @@
 .terraform/
 terraform.tfvars
 terraform.tfvars.json
-*.tfstate
-*.tfstate.backup
+*.tfstate*
 tfplan
+*.rdp
