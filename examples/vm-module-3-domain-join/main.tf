@@ -63,18 +63,18 @@ resource "azurerm_virtual_machine_extension" "vm" {
   # [OPTIONAL SETTINGS]
   #                       "NumberOfRetries": "5",
   settings           = <<SETTINGS
-{
+                        {
                           "Name": "${var.domain}",
                           "User": "${var.domjoin_user}",
                           "OUPath": "${var.domain_oupath}",
                           "Restart": "true",
                           "Options": "3"
-}
+                        }
 SETTINGS
   protected_settings = <<PROTECTED_SETTINGS
-{
+                        {
                           "Password": "${var.domjoin_password}"
-}
+                        }
 PROTECTED_SETTINGS
   depends_on         = [module.windowsservers]
 }
