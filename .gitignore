@@ -2,3 +2,4 @@
 terraform.tfstate*
 tfplan
 *.rdp
+terraform.tfvars.json
