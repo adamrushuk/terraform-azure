@@ -5,8 +5,14 @@ From the root of this repo, run the commands below to apply, test, and destroy a
 ## Assumptions / Prep
 
 1. An `Azure AD Domain Services` instance has been created.
-1. The default `aadds-vnet - Address space`  was changed from `10.0.0.0/16` to `10.0.0.0/16`
-1. 
+1. The default `aadds-vnet - Address space`  was changed from the default of `10.0.0.0/24` to `10.0.0.0/16`.  
+You can use the Azure CLI command below to action this:
+    ```powershell
+    az network vnet update --resource-group "aadds-rg" --name "aadds-vnet" --address-prefixes "10.0.0.0/16"
+    ```
+1. You have created a user in Azure AD (eg: `admin` ), and added them to the `AAD DC Administrators`  group.
+1. You have renamed `terraform.tfvars.json.example` to `terraform.tfvars.json`, and entered your own values from your
+new Azure AD Domain Services instance.
 
 ## Apply
 
@@ -18,7 +24,8 @@ cd ./examples/vm-module-3-domain-join
 terraform init -upgrade
 
 # Plan
-terraform plan -out=tfplan
+# Rename "terraform.tfvars.json.example" to "terraform.tfvars.json", and enter your own values
+terraform plan -out=tfplan -var-file=terraform.tfvars.json
 
 # Apply
 terraform apply tfplan
@@ -28,7 +35,7 @@ terraform apply tfplan
 
 Connect to the VM:
 ```powershell
-Get-AzRemoteDesktopFile -ResourceGroupName "terraform-compute" -Name "domjoinvm0" -LocalPath "$PWD/domjoinvm0.rdp"
+Get-AzRemoteDesktopFile -ResourceGroupName "terraform-compute-rg" -Name "domjoin0" -LocalPath "$PWD/domjoin0.rdp"
 ```
 
 ## Destroy
@@ -39,5 +46,4 @@ terraform destroy
 
 # Delete local Terraform files
 Remove-Item -Recurse -Path ".terraform", "tfplan", "terraform.tfstate*"
-
 ```
