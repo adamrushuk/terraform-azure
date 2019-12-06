@@ -4,7 +4,10 @@
     "aadds_vnet_name": "aadds-vnet",
     "vm_resource_group_name": "terraform-compute-rg",
     "vm_count": 2,
-    "vm_public_ip_dns": ["globallyuniquevm0", "globallyuniquevm1"],
+    "vm_public_ip_dns": [
+        "globallyuniquevm0",
+        "globallyuniquevm1"
+    ],
     "vm_name": "domjoin",
     "vm_size": "Standard_DS2_v2",
     "vm_admin_username": "sysadmin",
@@ -12,5 +15,9 @@
     "domain": "myaaddsdomain.onmicrosoft.com",
     "domjoin_user": "admin@myaaddsdomain.onmicrosoft.com",
     "domjoin_password": "<AnotherSuperStrongP@ssw0rd>",
-    "domain_oupath": "OU=AADDC Computers,DC=myaaddsdomain,DC=onmicrosoft,DC=com"
+    "domain_oupath": "OU=AADDC Computers,DC=myaaddsdomain,DC=onmicrosoft,DC=com",
+    "tags": {
+        "source": "terraform",
+        "developer": "Adam Rush"
+    }
 }
