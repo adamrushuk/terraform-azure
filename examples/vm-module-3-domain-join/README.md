@@ -11,8 +11,13 @@ You can use the Azure CLI command below to action this:
     az network vnet update --resource-group "aadds-rg" --name "aadds-vnet" --address-prefixes "10.0.0.0/16"
     ```
 1. You have created a user in Azure AD (eg: `admin` ), and added them to the `AAD DC Administrators`  group.
-1. You have reset the above user's password to trigger a password hash sync, as per: https://docs.microsoft.com/en-gb/azure/active-directory-domain-services/tutorial-create-instance#enable-user-accounts-for-azure-ad-ds 
-    > For cloud-only user accounts, users must change their passwords before they can use Azure AD DS. This password change process causes the password hashes for Kerberos and NTLM authentication to be generated and stored in Azure AD. You can either expire the passwords for all users in the tenant who need to use Azure AD DS, which forces a password change on next sign-in, or instruct them to manually change their passwords. For this tutorial, let's manually change a user password.
+1. You have reset the above user's password to trigger a password hash sync, as per:   
+   https://docs.microsoft.com/en-gb/azure/active-directory-domain-services/tutorial-create-instance#enable-user-accounts-for-azure-ad-ds 
+    > For cloud-only user accounts, users must change their passwords before they can use Azure AD DS. 
+    This password change process causes the password hashes for Kerberos and NTLM authentication to be generated
+    and stored in Azure AD. You can either expire the passwords for all users in the tenant who need to use
+    Azure AD DS, which forces a password change on next sign-in, or instruct them to manually change their
+    passwords. For this tutorial, let's manually change a user password.
 
 1. You have renamed `terraform.tfvars.json.example` to `terraform.tfvars.json`, and entered your own values from your
 new Azure AD Domain Services instance.
@@ -36,8 +41,14 @@ terraform apply tfplan
 
 ## Test
 
-Connect to the VM:
+Connect to the VM by downloading the RDP connection file:
 ```powershell
+# Connect PowerShell to Azure
+Connect-AzAccount
+
+# Download RDP connection file
+Get-AzRemoteDesktopFile -ResourceGroupName "<MyResourceGroup>" -Name "<MyVmName>" -LocalPath "$PWD/<MyVmName>.rdp"
+# eg:
 Get-AzRemoteDesktopFile -ResourceGroupName "terraform-compute-rg" -Name "domjoin0" -LocalPath "$PWD/domjoin0.rdp"
 ```
 
