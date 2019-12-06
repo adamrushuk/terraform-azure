@@ -1,15 +1,7 @@
-# Using VM module with domain join to existing Azure AD Domain Services instance
+# Uses Azure VM module with "JsonADDomainExtension" VM extension to domain join to an existing Azure AD Domain Services instance
 # Uses local state file
 
-# Local vars
-locals {
-  location                 = "uksouth"
-  vnet_name                = "aadds-vnet"
-  vnet_resource_group_name = "aadds-rg"
-}
-
-
-# Configure Providers
+# Providers
 provider "azurerm" {
   # Pin version as per best practice
   version = "=1.37.0"
@@ -20,33 +12,71 @@ terraform {
 
 
 # Data sources
-# WARNING: doesnt export virtual_network_name needed for subnet, so using local vars and depends_on
+# WARNING: doesnt export virtual_network_name needed for subnet, so using var vars and depends_on
 data "azurerm_virtual_network" "aadds" {
-  name                = local.vnet_name
-  resource_group_name = local.vnet_resource_group_name
+  name                = var.aadds_vnet_name
+  resource_group_name = var.aadds_vnet_resource_group_name
 }
 
 
 # Create new resources
 resource "azurerm_subnet" "vm" {
   name                 = "vmsubnet"
-  resource_group_name  = local.vnet_resource_group_name
-  virtual_network_name = local.vnet_name
+  resource_group_name  = var.aadds_vnet_resource_group_name
+  virtual_network_name = var.aadds_vnet_name
   address_prefix       = "10.0.1.0/24"
   depends_on           = [data.azurerm_virtual_network.aadds]
 }
 
 module "windowsservers" {
-  source           = "Azure/compute/azurerm"
-  location         = local.location
-  vm_hostname      = "domjoinvm"
-  vm_os_simple     = "WindowsServer"
-  admin_password   = "ComplxP@ssw0rd!"
-  admin_username   = "sysadmin"
-  public_ip_dns    = ["asr999winsimplevmips"] # change to a unique name per datacenter region
-  remote_port      = "3389"
-  is_windows_image = "true"
-  vnet_subnet_id   = azurerm_subnet.vm.id
+  source              = "Azure/compute/azurerm"
+  location            = var.location
+  resource_group_name = var.vm_resource_group_name
+  nb_instances        = var.vm_count
+  vm_hostname         = var.vm_name
+  vm_os_simple        = "WindowsServer"
+  vm_size             = var.vm_size
+  admin_username      = var.vm_admin_username
+  admin_password      = var.vm_admin_password
+  nb_public_ip        = var.vm_count
+  public_ip_dns       = var.vm_public_ip_dns # change to a unique name per datacenter region
+  remote_port         = "3389"
+  is_windows_image    = "true"
+  vnet_subnet_id      = azurerm_subnet.vm.id
+  tags                = var.tags
+}
+
+# Domain join extension
+# Logs found on target VM here: C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.JsonADDomainExtension\1.3.2
+# May need to manually uninstall extension if persistent errors occur, eg:
+# "Error: Code="VMExtensionProvisioningError" Message="VM has reported a failure when processing extension 'domjoin'"
+resource "azurerm_virtual_machine_extension" "vm" {
+  count                = var.vm_count
+  name                 = "domjoinext"
+  location             = var.location
+  resource_group_name  = var.vm_resource_group_name
+  virtual_machine_name = "${var.vm_name}${count.index}"
+  publisher            = "Microsoft.Compute"
+  type                 = "JsonADDomainExtension"
+  type_handler_version = "1.3"
+  # What the settings mean: https://docs.microsoft.com/en-us/windows/desktop/api/lmjoin/nf-lmjoin-netjoindomain
+  # [OPTIONAL SETTINGS]
+  #                       "NumberOfRetries": "5",
+  settings           = <<SETTINGS
+{
+                          "Name": "${var.domain}",
+                          "User": "${var.domjoin_user}",
+                          "OUPath": "${var.domain_oupath}",
+                          "Restart": "true",
+                          "Options": "3"
+}
+SETTINGS
+  protected_settings = <<PROTECTED_SETTINGS
+{
+                          "Password": "${var.domjoin_password}"
+}
+PROTECTED_SETTINGS
+  depends_on         = [module.windowsservers]
 }
 
 
