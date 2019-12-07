@@ -4,7 +4,7 @@
 # Providers
 provider "azurerm" {
   # Pin version as per best practice
-  version = "=1.37.0"
+  version = "=1.38.0"
 }
 terraform {
   required_version = ">= 0.12"
@@ -59,9 +59,11 @@ resource "azurerm_virtual_machine_extension" "vm" {
   publisher            = "Microsoft.Compute"
   type                 = "JsonADDomainExtension"
   type_handler_version = "1.3"
-  # What the settings mean: https://docs.microsoft.com/en-us/windows/desktop/api/lmjoin/nf-lmjoin-netjoindomain
-  # [OPTIONAL SETTINGS]
+
+  # [Optional SETTINGS]
   #                       "NumberOfRetries": "5",
+  #                       "RetryIntervalInMilliseconds": "10000",
+  #                       "UnjoinDomainUser": "${var.domjoin_user}",
   settings           = <<SETTINGS
                         {
                           "Name": "${var.domain}",
@@ -71,14 +73,20 @@ resource "azurerm_virtual_machine_extension" "vm" {
                           "Options": "3"
                         }
 SETTINGS
+
+  # [Optional PROTECTED_SETTINGS]
+  #                       "UnjoinDomainPassword": "${var.domjoin_password}",
   protected_settings = <<PROTECTED_SETTINGS
                         {
                           "Password": "${var.domjoin_password}"
                         }
 PROTECTED_SETTINGS
+
   depends_on         = [module.windowsservers]
 }
 
+
+# TODO: Add local exec to generate RDP files (see notes)
 
 # Ouputs
 output "windows_vm_public_name" {
