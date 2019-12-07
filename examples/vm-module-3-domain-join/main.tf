@@ -106,9 +106,10 @@ resource "null_resource" "rdp" {
 #     interpreter = ["PowerShell", "-Command"]
 
 
-    # Method 3: (WIP) Use an external script
-    command = ".'${path.module}\\generate-rdp-files.ps1' -Fqdn '${module.windowsservers.public_ip_dns_name[count.index]}' -Username '${var.vm_admin_username}' -Password '${var.vm_admin_password}' -RdpFilename '${var.vm_name}${count.index}'"
+    # Method 3: Use an external script
+    command = ".'${path.module}\\generate-rdp-files.ps1' -Fqdn '${module.windowsservers.public_ip_dns_name[count.index]}' -Username '${var.vm_admin_username}' -RdpFilename '${var.vm_name}${count.index}'"
 
+    # Use environment variables to pass sensitive data, as this won't be output in console
     environment = {
       VM_ADMIN_PASSWORD = var.vm_admin_password
     }
