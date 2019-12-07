@@ -61,28 +61,28 @@ resource "azurerm_virtual_machine_extension" "vm" {
   type_handler_version = "1.3"
 
   # [Optional SETTINGS]
-  #                       "NumberOfRetries": "5",
-  #                       "RetryIntervalInMilliseconds": "10000",
-  #                       "UnjoinDomainUser": "${var.domjoin_user}",
-  settings           = <<SETTINGS
-                        {
-                          "Name": "${var.domain}",
-                          "User": "${var.domjoin_user}",
-                          "OUPath": "${var.domain_oupath}",
-                          "Restart": "true",
-                          "Options": "3"
-                        }
+  # "NumberOfRetries": "5",
+  # "RetryIntervalInMilliseconds": "10000",
+  # "UnjoinDomainUser": "${var.domjoin_user}",
+  settings = <<SETTINGS
+    {
+      "Name": "${var.domain}",
+      "User": "${var.domjoin_user}",
+      "OUPath": "${var.domain_oupath}",
+      "Restart": "true",
+      "Options": "3"
+    }
 SETTINGS
 
   # [Optional PROTECTED_SETTINGS]
-  #                       "UnjoinDomainPassword": "${var.domjoin_password}",
+  # "UnjoinDomainPassword": "${var.domjoin_password}",
   protected_settings = <<PROTECTED_SETTINGS
-                        {
-                          "Password": "${var.domjoin_password}"
-                        }
+    {
+      "Password": "${var.domjoin_password}"
+    }
 PROTECTED_SETTINGS
 
-  depends_on         = [module.windowsservers]
+  depends_on = [module.windowsservers]
 }
 
 
