@@ -93,18 +93,29 @@ resource "null_resource" "rdp" {
     # Method 1: Simple method using Get-AzRemoteDesktopFile, but requires login with Connect-AzAccount
     # command = "Get-AzRemoteDesktopFile -ResourceGroupName ${var.vm_resource_group_name} -Name ${var.vm_name}${count.index} -LocalPath $PWD/${var.vm_name}${count.index}.rdp"
 
-    # Method 2: Generate our own RDP connection file content
-    command = <<EOT
-@"
-full address:s:${module.windowsservers.public_ip_dns_name[count.index]}:3389
-prompt for credentials:i:0
-username:s:${var.vm_admin_username}
-password 51:b:$(("${var.vm_admin_password}" | ConvertTo-SecureString -AsPlainText -Force) | ConvertFrom-SecureString)
-"@ | Set-Content -Path "${var.vm_name}${count.index}.rdp" -Force
-    EOT
 
-    interpreter = ["PowerShell", "-Command"]
+    # Method 2: Generate our own RDP connection file content
+#     command = <<EOT
+# @"
+# full address:s:${module.windowsservers.public_ip_dns_name[count.index]}:3389
+# prompt for credentials:i:0
+# username:s:${var.vm_admin_username}
+# password 51:b:$(("${var.vm_admin_password}" | ConvertTo-SecureString -AsPlainText -Force) | ConvertFrom-SecureString)
+# "@ | Set-Content -Path "${var.vm_name}${count.index}.rdp" -Force
+#     EOT
+#     interpreter = ["PowerShell", "-Command"]
+
+
+    # Method 3: (WIP) Use an external script
+    command = ".'${path.module}\\generate-rdp-files.ps1' -Fqdn '${module.windowsservers.public_ip_dns_name[count.index]}' -Username '${var.vm_admin_username}' -Password '${var.vm_admin_password}' -RdpFilename '${var.vm_name}${count.index}'"
+
+    environment = {
+      VM_ADMIN_PASSWORD = var.vm_admin_password
+    }
+
+    interpreter = ["pwsh", "-Command"]
   }
+
 
   triggers = {
     public_ip_dns_names = "${join(",", module.windowsservers.public_ip_dns_name[*])}"
