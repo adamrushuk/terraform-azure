@@ -18,7 +18,6 @@ You can use the Azure CLI command below to action this:
     and stored in Azure AD. You can either expire the passwords for all users in the tenant who need to use
     Azure AD DS, which forces a password change on next sign-in, or instruct them to manually change their
     passwords. For this tutorial, let's manually change a user password.
-
 1. You have renamed `terraform.tfvars.json.example` to `terraform.tfvars.json`, and entered your own values from your
 new Azure AD Domain Services instance.
 
@@ -52,6 +51,26 @@ Get-AzRemoteDesktopFile -ResourceGroupName "<MyResourceGroup>" -Name "<MyVmName>
 Get-AzRemoteDesktopFile -ResourceGroupName "terraform-compute-rg" -Name "domjoin0" -LocalPath "$PWD/domjoin0.rdp"
 ```
 
+### Connect using an Azure AD user account
+
+Initially you will only be able to connect using the specified local admin name (`sysadmin`).
+
+Even if your Azure AD user is a member of the `AAD DC Administrators` Azure AD group, you may not be able to connect
+using RDP.
+
+Adding the Azure AD `AAD DC Administrators` group into the local Administrators group within the VM will allow RDP
+connections.
+
+### Installing Remote Server Administration Tools (RSAT) to manage AADDS
+
+Once logged into your domain-joined VM as an Azure AD user, you can install RSAT to enable standard AD tools like
+`AD User and Computers`.
+
+```powershell
+# Install RSAT
+Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online
+```
+
 ## Destroy
 
 ```powershell
@@ -61,3 +80,7 @@ terraform destroy
 # Delete local Terraform files
 Remove-Item -Recurse -Path ".terraform", "tfplan", "terraform.tfstate*"
 ```
+
+## Troubleshooting
+
+<!-- TODO -->
