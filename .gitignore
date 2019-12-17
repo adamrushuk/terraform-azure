@@ -1,2 +1,7 @@
+# Terraform
 .terraform/
-terraform.tfstate*
+terraform.tfvars
+terraform.tfvars.json
+*.tfstate
+*.tfstate.backup
+tfplan

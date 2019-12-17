@@ -1,0 +1,7 @@
+{
+    "resource_group_name": "",
+    "location": "uksouth",
+    "tags": {
+        "Owner": "Adam Rush"
+    }
+}
