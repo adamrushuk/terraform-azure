@@ -44,7 +44,7 @@ Now that we have a secure remote backend configured we can go ahead and run Terr
 cd examples\hub-spoke-network
 
 # Run Terraform
-terraform init
+terraform init -upgrade
 terraform plan
 ..\..\scripts\Invoke-Terraform.ps1 -Command "apply"
 
