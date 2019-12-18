@@ -45,11 +45,12 @@ cd examples\hub-spoke-network
 
 # Run Terraform
 terraform init -upgrade
-terraform plan
+terraform plan | sls "resource"
 ..\..\scripts\Invoke-Terraform.ps1 -Command "apply"
 
 # Redisplay outputs if required
 terraform output
+terraform show
 ```
 
 ### Cleanup
