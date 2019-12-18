@@ -5,7 +5,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "spoke2-vnet-rg" {
-  name     = "${local.spoke2-resource-group}"
+  name     = "${local.global-prefix}-${local.spoke2-resource-group}"
   location = "${local.spoke2-location}"
 }
 

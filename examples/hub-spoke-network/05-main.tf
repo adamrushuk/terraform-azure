@@ -1,3 +1,7 @@
+locals {
+  global-prefix = "z${random_string.prefix.result}"
+}
+
 # Create a Remote Backend
 terraform {
   backend "azurerm" {
@@ -13,9 +17,13 @@ terraform {
 
 provider "azurerm" {
   # Pin version as per best practice
-  version = "=1.35.0"
+  version = "=1.39.0"
 }
 
-resource "random_id" "prefix" {
-  byte_length = 8
+resource "random_string" "prefix" {
+  length  = 4
+  special = false
+  number  = true
+  lower   = false
+  upper   = false
 }

@@ -6,7 +6,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "hub-vnet-rg" {
-  name     = "${local.hub-resource-group}"
+  name     = "${local.global-prefix}-${local.hub-resource-group}"
   location = "${local.hub-location}"
 }
 

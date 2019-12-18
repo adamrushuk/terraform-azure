@@ -5,7 +5,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "onprem-vnet-rg" {
-  name     = "${local.onprem-resource-group}"
+  name     = "${local.global-prefix}-${local.onprem-resource-group}"
   location = "${local.onprem-location}"
 }
 

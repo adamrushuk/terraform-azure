@@ -15,5 +15,5 @@ variable "password" {
 
 variable "vmsize" {
   description = "Size of the VMs"
-  default     = "Standard_DS1_v2"
+  default     = "Standard_DS1_v2" # Standard_B1s
 }
