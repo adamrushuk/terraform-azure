@@ -17,10 +17,16 @@
         - ARM_CLIENT_SECRET
         - ARM_TENANT_ID
         - ARM_ACCESS_KEY
+.EXAMPLE
+    Connect-AzAccount -UseDeviceAuthentication
+    .\scripts\ConfigureAzureForSecureTerraformAccess.ps1 -adminUserDisplayName 'Adam Rush'
+
+    Displays device login link, then configures secure Terraform access for admin user "Adam Rush"
 .NOTES
     Assumptions:
     - Azure PowerShell module is installed: https://docs.microsoft.com/en-us/powershell/azure/install-az-ps
     - You are already logged into Azure before running this script (eg. Connect-AzAccount)
+    - Use "Connect-AzAccount -UseDeviceAuthentication" if browser prompts don't work.
 
     Author:  Adam Rush
     Blog:    https://adamrushuk.github.io
@@ -35,7 +41,7 @@ param (
     $adminUserDisplayName = '<Admin Username>',
     $servicePrincipleName = 'terraform',
     $resourceGroupName = 'terraform-mgmt-rg',
-    $location = 'eastus',
+    $location = 'uksouth',
     $storageAccountSku = 'Standard_LRS',
     $storageContainerName = 'terraform-state',
     # Prepend random prefix with A character, as some resources cannot start with a number
@@ -97,17 +103,30 @@ Write-Host "SUCCESS!" -ForegroundColor 'Green'
 #endregion Check Azure login
 
 
-#region New Terraform SP (Service Principal)
-Write-HostPadded -Message "Creating a Terraform Service Principle: [$servicePrincipleName] ..." -NoNewline
-try {
-    $terraformSP = New-AzADServicePrincipal -DisplayName $servicePrincipleName -Role 'Contributor' -ErrorAction 'Stop'
-    $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $terraformSP.Secret).GetNetworkCredential().Password
-} catch {
-    Write-Host "ERROR!" -ForegroundColor 'Red'
-    throw $_
-}
+#region Service Principle
+Write-HostPadded -Message "Checking for an active Service Principle: [$servicePrincipleName]..." -NoNewline
+
+# Get current context
+$terraformSP = Get-AzADServicePrincipal -DisplayName $servicePrincipleName
 Write-Host "SUCCESS!" -ForegroundColor 'Green'
-#endregion New Terraform SP (Service Principal)
+
+if (-not $terraformSP) {
+    Write-HostPadded -Message "Creating a Terraform Service Principle: [$servicePrincipleName] ..." -NoNewline
+    try {
+        $terraformSP = New-AzADServicePrincipal -DisplayName $servicePrincipleName -Role 'Contributor' -ErrorAction 'Stop'
+        $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $terraformSP.Secret).GetNetworkCredential().Password
+    } catch {
+        Write-Host "ERROR!" -ForegroundColor 'Red'
+        throw $_
+    }
+    Write-Host "SUCCESS!" -ForegroundColor 'Green'
+
+} else {
+    # Service Principle exists so renew password (as cannot retrieve current one-off password)
+    $newSpCredential = $terraformSP | New-AzADSpCredential
+    $servicePrinciplePassword = [pscredential]::new($servicePrincipleName, $newSpCredential.Secret).GetNetworkCredential().Password
+}
+#endregion Service Principle
 
 
 #region Get Subscription
@@ -131,6 +150,7 @@ try {
         Name        = $resourceGroupName
         Location    = $location
         Tag         = @{ keep = "true" }
+        Force       = $true
         ErrorAction = 'Stop'
         Verbose     = $VerbosePreference
     }
@@ -207,6 +227,9 @@ Write-Host "SUCCESS!" -ForegroundColor 'Green'
 $taskMessage = "Creating Terraform KeyVault: [$vaultName]"
 Write-HostPadded -Message "`n$taskMessage..." -NoNewline
 try {
+
+    Register-AzResourceProvider -ProviderNamespace "Microsoft.KeyVault"
+
     $azKeyVaultParams = @{
         VaultName         = $vaultName
         ResourceGroupName = $resourceGroupName
@@ -280,7 +303,7 @@ $terraformLoginVars = @{
     'ARM-ACCESS-KEY'      = $storageAccessKey
 }
 Write-Host "`nTerraform login details:"
-$terraformLoginVars | Out-String | Write-Verbose
+$terraformLoginVars | Out-String | Write-Host
 #endregion Terraform login variables
 
 
