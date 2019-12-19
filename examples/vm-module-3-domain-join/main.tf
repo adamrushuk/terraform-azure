@@ -49,25 +49,26 @@ module "windowsservers" {
 # Domain join extension
 # Logs found on target VM here: C:\WindowsAzure\Logs\Plugins\Microsoft.Compute.JsonADDomainExtension\1.3.2
 # May need to manually uninstall extension if persistent errors occur, eg:
-# "Error: Code="VMExtensionProvisioningError" Message="VM has reported a failure when processing extension 'domjoin'"
+# "Error: Code="VMExtensionProvisioningError" Message="VM has reported a failure when processing extension 'domjoinext'"
 resource "azurerm_virtual_machine_extension" "vm" {
-  count                = var.vm_count
-  name                 = "domjoinext"
-  location             = var.location
-  resource_group_name  = var.vm_resource_group_name
-  virtual_machine_name = "${var.vm_name}${count.index}"
-  publisher            = "Microsoft.Compute"
-  type                 = "JsonADDomainExtension"
-  type_handler_version = "1.3"
+  count                      = var.vm_count
+  name                       = "domjoinext"
+  location                   = var.location
+  resource_group_name        = var.vm_resource_group_name
+  virtual_machine_name       = "${var.vm_name}${count.index}"
+  publisher                  = "Microsoft.Compute"
+  type                       = "JsonADDomainExtension"
+  type_handler_version       = "1.3"
+  auto_upgrade_minor_version = "true"
 
   # [Optional SETTINGS]
   # "NumberOfRetries": "5",
   # "RetryIntervalInMilliseconds": "10000",
-  # "UnjoinDomainUser": "${var.domjoin_user}",
+  # "UnjoinDomainUser": "${var.domain_user_upn}",
   settings = <<SETTINGS
     {
       "Name": "${var.domain}",
-      "User": "${var.domjoin_user}",
+      "User": "${var.domain_user_upn}",
       "OUPath": "${var.domain_oupath}",
       "Restart": "true",
       "Options": "3"
@@ -75,14 +76,34 @@ resource "azurerm_virtual_machine_extension" "vm" {
 SETTINGS
 
   # [Optional PROTECTED_SETTINGS]
-  # "UnjoinDomainPassword": "${var.domjoin_password}",
+  # "UnjoinDomainPassword": "${var.domain_password}",
   protected_settings = <<PROTECTED_SETTINGS
     {
-      "Password": "${var.domjoin_password}"
+      "Password": "${var.domain_password}"
     }
 PROTECTED_SETTINGS
 
   depends_on = [module.windowsservers]
+}
+
+# Install RSAT
+resource "azurerm_virtual_machine_extension" "winfeatures" {
+  count                      = var.vm_count
+  name                       = "winfeatures"
+  location                   = var.location
+  resource_group_name        = var.prefix
+  virtual_machine_name       = "${var.prefix}-vm${count.index}"
+  publisher                  = "Microsoft.Compute"
+  type                       = "CustomScriptExtension"
+  type_handler_version       = "1.9" # only supports Major.Minor version
+  auto_upgrade_minor_version = "true"
+  settings                   = <<SETTINGS
+    {
+        "commandToExecute": "powershell -ExecutionPolicy Unrestricted -Command Install-WindowsFeature -IncludeAllSubFeature RSAT -Verbose"
+    }
+SETTINGS
+
+  depends_on = [azurerm_virtual_machine_extension.vm]
 }
 
 
@@ -95,15 +116,15 @@ resource "null_resource" "rdp" {
 
 
     # Method 2: Generate our own RDP connection file content
-#     command = <<EOT
-# @"
-# full address:s:${module.windowsservers.public_ip_dns_name[count.index]}:3389
-# prompt for credentials:i:0
-# username:s:${var.vm_admin_username}
-# password 51:b:$(("${var.vm_admin_password}" | ConvertTo-SecureString -AsPlainText -Force) | ConvertFrom-SecureString)
-# "@ | Set-Content -Path "${var.vm_name}${count.index}.rdp" -Force
-#     EOT
-#     interpreter = ["PowerShell", "-Command"]
+    #     command = <<EOT
+    # @"
+    # full address:s:${module.windowsservers.public_ip_dns_name[count.index]}:3389
+    # prompt for credentials:i:0
+    # username:s:${var.vm_admin_username}
+    # password 51:b:$(("${var.vm_admin_password}" | ConvertTo-SecureString -AsPlainText -Force) | ConvertFrom-SecureString)
+    # "@ | Set-Content -Path "${var.vm_name}${count.index}.rdp" -Force
+    #     EOT
+    #     interpreter = ["PowerShell", "-Command"]
 
 
     # Method 3: Use an external script

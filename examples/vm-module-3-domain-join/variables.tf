@@ -12,12 +12,12 @@ variable "domain" {
 
 # Use "User name" shown in Azure AD: https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/AllUsers
 # It should show UPN format, eg: joebloggs@mydomain.onmicrosoft.com
-variable "domjoin_user" {
+variable "domain_user_upn" {
   description = "Specify a user (in UPN format, eg: joebloggs@mydomain.onmicrosoft.com) that belongs to the 'AAD DC Administrators' group. Only members of this group have privileges to join machines to the Azure AD DS managed domain. The account must be part of the Azure AD DS managed domain or Azure AD tenant - accounts from external directories associated with your Azure AD tenant can't correctly authenticate during the domain-join process. Use the 'User name' shown in Azure AD here: https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/AllUsers"
   default     = ""
 }
 
-variable "domjoin_password" {
+variable "domain_password" {
   description = "Specify a password for a user that belongs to the 'AAD DC Administrators' group. Only members of this group have privileges to join machines to the Azure AD DS managed domain. The account must be part of the Azure AD DS managed domain or Azure AD tenant - accounts from external directories associated with your Azure AD tenant can't correctly authenticate during the domain-join process"
   default     = ""
 }

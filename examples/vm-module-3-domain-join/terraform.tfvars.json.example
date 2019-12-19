@@ -13,8 +13,8 @@
     "vm_admin_username": "sysadmin",
     "vm_admin_password": "MySuperStrongP@ssw0rd",
     "domain": "myaaddsdomain.onmicrosoft.com",
-    "domjoin_user": "admin@myaaddsdomain.onmicrosoft.com",
-    "domjoin_password": "<AnotherSuperStrongP@ssw0rd>",
+    "domain_user_upn": "admin@myaaddsdomain.onmicrosoft.com",
+    "domain_password": "<AnotherSuperStrongP@ssw0rd>",
     "domain_oupath": "OU=AADDC Computers,DC=myaaddsdomain,DC=onmicrosoft,DC=com",
     "tags": {
         "source": "terraform",
