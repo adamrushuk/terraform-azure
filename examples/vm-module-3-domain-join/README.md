@@ -68,7 +68,7 @@ Once logged into your domain-joined VM as an Azure AD user, you can install RSAT
 
 ```powershell
 # Install RSAT
-Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability -Online
+Install-WindowsFeature -IncludeAllSubFeature "RSAT"
 ```
 
 ## Destroy
@@ -83,4 +83,25 @@ Remove-Item -Recurse -Path ".terraform", "tfplan", "terraform.tfstate*"
 
 ## Troubleshooting
 
-<!-- TODO -->
+The Domain Join extension may return the `User Specified without NetSetupAcctCreate` error, along with one of the
+following codes:
+
+- Error code 1355
+- Error code 1907
+- Error code 1326
+
+You can get the full extension logs by using this PowerShell command:
+
+```powershell
+Get-AzVMExtension -ResourceGroupName "<resourceGroupName>" -VMName "<vmName>" -Name "myExtensionName"
+```
+
+### Things to Check
+
+- Have you changed your domain user password to ensure password sync occurs?
+- Have you confirmed the OU you're specifying already exists?
+- Does the user account you're specifying belong to the `AAD DC Administrators` group?
+- Have you updated your VM's VNET DNS settings with the IPs of the new Domain Controllers (eg. 10.0.0.4, 10.0.0.5),
+  rebooted the VM and confirmed it's using the new IPs of AADDS DCs?
+
+**Reference**: https://docs.microsoft.com/en-gb/azure/active-directory-domain-services/join-windows-vm#troubleshoot-domain-join-issues
