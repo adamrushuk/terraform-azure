@@ -1,6 +1,6 @@
 variable "location" {
   description = "The location/region where resources are created"
-  default     = "terraform-compute-rg"
+  default     = "uksouth"
 }
 
 
@@ -83,7 +83,8 @@ variable "tags" {
   description = "A map of the tags to use on the resources"
 
   default = {
-    source    = "terraform"
-    developer = "Adam Rush"
+    Environment = "Dev"
+    Owner       = "Adam Rush"
+    Source      = "terraform"
   }
 }
