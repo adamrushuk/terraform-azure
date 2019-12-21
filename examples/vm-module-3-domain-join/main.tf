@@ -4,7 +4,7 @@
 # Providers
 provider "azurerm" {
   # Pin version as per best practice
-  version = "=1.38.0"
+  version = "=1.39.0"
 }
 terraform {
   required_version = ">= 0.12"
@@ -91,8 +91,8 @@ resource "azurerm_virtual_machine_extension" "winfeatures" {
   count                      = var.vm_count
   name                       = "winfeatures"
   location                   = var.location
-  resource_group_name        = var.prefix
-  virtual_machine_name       = "${var.prefix}-vm${count.index}"
+  resource_group_name        = var.vm_resource_group_name
+  virtual_machine_name       = "${var.vm_name}${count.index}"
   publisher                  = "Microsoft.Compute"
   type                       = "CustomScriptExtension"
   type_handler_version       = "1.9" # only supports Major.Minor version
@@ -142,6 +142,8 @@ resource "null_resource" "rdp" {
   triggers = {
     public_ip_dns_names = "${join(",", module.windowsservers.public_ip_dns_name[*])}"
   }
+
+  depends_on = [module.windowsservers]
 }
 
 

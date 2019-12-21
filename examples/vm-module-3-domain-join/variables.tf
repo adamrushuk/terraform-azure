@@ -79,7 +79,7 @@ variable "vm_size" {
 
 # Misc
 variable "tags" {
-  type        = "map"
+  type        = map(string)
   description = "A map of the tags to use on the resources"
 
   default = {
