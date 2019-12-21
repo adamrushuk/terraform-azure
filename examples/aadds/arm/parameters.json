@@ -1,0 +1,41 @@
+{
+    "apiVersion": {
+        "value": "2017-06-01"
+    },
+    "domainConfigurationType": {
+        "value": "FullySynced"
+    },
+    "domainName": {
+        "value": "mydomain.onmicrosoft.com"
+    },
+    "filteredSync": {
+        "value": "Disabled"
+    },
+    "location": {
+        "value": "uksouth"
+    },
+    "notificationSettings": {
+        "value": {
+            "notifyGlobalAdmins": "Enabled",
+            "notifyDcAdmins": "Enabled",
+            "additionalRecipients": []
+        }
+    },
+    "subnetName": {
+        "value": "aadds-subnet"
+    },
+    "vnetName": {
+        "value": "aadds-vnet"
+    },
+    "vnetAddressPrefixes": {
+        "value": [
+            "10.0.0.0/24"
+        ]
+    },
+    "subnetAddressPrefix": {
+        "value": "10.0.0.0/24"
+    },
+    "nsgName": {
+        "value": "aadds-nsg"
+    }
+}

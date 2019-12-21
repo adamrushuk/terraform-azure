@@ -1,0 +1,10 @@
+{
+    "location": "uksouth",
+    "resource_group_name": "aadds-rg",
+    "domain_name": "myaaddsdomain.onmicrosoft.com",
+    "tags": {
+        "Environment": "Dev",
+        "Owner": "Adam Rush",
+        "Source": "terraform"
+    }
+}

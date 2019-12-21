@@ -1,0 +1,21 @@
+# See http://pre-commit.com for more information
+# See http://pre-commit.com/hooks.html for more hooks
+
+# Setup commands:
+# pre-commit install
+# pre-commit --version
+# pre-commit run --all-files
+
+repos:
+  - repo: git://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.19.0
+    hooks:
+    - id: terraform_fmt
+    # - id: terraform_docs
+  - repo: git://github.com/pre-commit/pre-commit-hooks
+    rev: v2.1.0
+    hooks:
+      - id: check-merge-conflict
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-added-large-files
