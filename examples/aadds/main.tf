@@ -2,6 +2,9 @@
 # https://www.terraform.io/docs/configuration/functions/merge.html
 # locals {}
 
+# TODO: Add local-exec to handle proper ARM template destroy, as per:
+# https://medium.com/@charotamine/terraform-azure-terraform-destroy-6bc0151fe0bd
+
 # Providers
 provider "azurerm" {
   # Pin version as per best practice
