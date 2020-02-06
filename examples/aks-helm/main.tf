@@ -37,8 +37,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   service_principal {
-    client_id     = azuread_application.aks_sp.application_id
-    client_secret = random_password.aks_sp_pwd.result
+    # Use current logged in client
+    client_id     = data.azurerm_client_config.current.client_id
+    # Use env var TF_VAR_service_principal_client_secret
+    client_secret = var.service_principal_client_secret
   }
 
   addon_profile {

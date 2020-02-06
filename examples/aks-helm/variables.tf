@@ -42,3 +42,13 @@ variable "tags" {
     Source      = "terraform"
   }
 }
+
+# Use data source: azurerm_client_config
+# variable "service_principal_client_id" {
+#   default = "__ARM_CLIENT_ID__"
+# }
+
+# Create env var: TF_VAR_service_principal_client_secret
+variable "service_principal_client_secret" {
+  default = "__ARM_CLIENT_SECRET__"
+}
