@@ -1,4 +1,5 @@
 # Service Principal for AKS
+# Extra permissions needed for creating AD App Registrations
 # source: https://dev.to/cdennig/fully-automated-creation-of-an-aad-integrated-kubernetes-cluster-with-terraform-15cm
 
 # OPTIONAL (alternative)
