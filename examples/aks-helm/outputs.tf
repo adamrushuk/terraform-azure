@@ -10,9 +10,9 @@
 #   value = azurerm_kubernetes_cluster.aks
 # }
 
-output "helm_release" {
-  value = helm_release.nexus
-}
+# output "helm_release" {
+#   value = helm_release.nexus
+# }
 
 output "aks_browse_command" {
   value = "az aks browse --resource-group ${azurerm_kubernetes_cluster.aks.resource_group_name} --name ${azurerm_kubernetes_cluster.aks.name}"
