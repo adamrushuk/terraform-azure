@@ -16,6 +16,8 @@ kubectl get all
 
 
 #region Nexus Custom
+# https://help.sonatype.com/repomanager3/formats/nuget-repositories
+
 # Prepare
 cd nexus
 kubectl create namespace nexus

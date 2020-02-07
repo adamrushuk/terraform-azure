@@ -17,8 +17,6 @@ cd ./examples/aks-helm
 terraform init -upgrade
 
 # Plan
-# Rename "terraform.tfvars.json.example" to "terraform.tfvars.json", and enter your own values
-# terraform plan -out=tfplan -var-file="terraform.tfvars.json"
 terraform plan -out=tfplan
 
 # Apply
