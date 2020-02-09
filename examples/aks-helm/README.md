@@ -36,3 +36,8 @@ terraform destroy
 # Delete local Terraform files
 Remove-Item -Recurse -Path ".terraform", "tfplan", "terraform.tfstate*", "*.rdp" -Force
 ```
+
+## Reference
+
+- https://hub.docker.com/r/sonatype/nexus3/#persistent-data
+- https://medium.com/stakater/k8s-deployments-vs-statefulsets-vs-daemonsets-60582f0c62d4

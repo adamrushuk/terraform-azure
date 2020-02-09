@@ -3,59 +3,15 @@ throw "do not run whole script; F8 sections as required"
 
 #region Kubectl
 # Get AKS k8s creds
-az aks get-credentials --resource-group aks-rg --name aks001 --overwrite-existing
+az aks get-credentials --resource-group <ResourceGroupName> --name <AksClusterName> --overwrite-existing
 
 # Open AKS k8s dashboard
-az aks browse --resource-group aks-rg --name aks001
+az aks browse --resource-group <ResourceGroupName> --name <AksClusterName>
 
 # Show resources
 kubectl get ns
 kubectl get all
 #endregion Kubectl
-
-
-
-#region Nexus Custom
-# https://help.sonatype.com/repomanager3/formats/nuget-repositories
-
-# Prepare
-cd nexus
-kubectl create namespace nexus
-kubectl get ns
-
-# Apply manifests
-kubectl apply --namespace nexus -f ./manifests
-
-# Connect to pod and Show generated admin password
-$podname = kubectl get pod -n nexus -l app=nexus -o jsonpath="{.items[0].metadata.name}"
-kubectl exec -n nexus -it $podname /bin/bash
-echo -e "\nadmin password: \n$(cat /nexus-data/admin.password)\n"
-
-# Example nuget hosted default feed
-http://<NexusHost>:8081/repository/nuget-hosted/
-
-# Register Nuget repo command, eg:
-nuget setapikey <NuGetApiKey> -source http://<NexusHost>:8081/repository/{repository name}/
-
-# Assemble and show App URL
-$appurl = kubectl get svc nexus --namespace nexus --ignore-not-found -o jsonpath="http://{.status.loadBalancer.ingress[0].ip}:{.spec.ports[0].port}"
-Write-Output "Browse to app with: $appurl"
-
-# Register Nuget feed as PowerShell repository
-# https://sammart.in/post/creating-your-own-powershell-repository-with-nexus-3/
-# Set NuGet API-Key Realm as "Active": http://<NexusHost>:8081/#admin/security/realms
-Register-PSRepository -Name "MyCustomRepo" -SourceLocation http://<NexusHost>:8081/repository/nuget-hosted/ -PublishLocation http://<NexusHost>:8081/repository/nuget-hosted/ -PackageManagementProvider "nuget" -InstallationPolicy "Trusted"
-Get-PSRepository
-
-# Publish module
-Publish-Module -Name "$env:HOME\Documents\WindowsPowerShell\Modules\Az.KeyVault\1.4.0" -Repository MyCustomRepo -NuGetApiKey "<NuGetApiKey>" -Verbose
-
-# Find modules
-Find-Module -Repository "MyCustomRepo"
-
-# Delete manifests
-kubectl delete --namespace nexus -f ./manifests
-#endregion Nexus Custom
 
 
 
