@@ -35,3 +35,8 @@ ls -lah /mnt/azure
 
 kubectl delete -f .
 #endregion Volume mount testing
+
+
+# Reference
+Example on how to attach and troubleshoot a volume to a BusyBox container:
+https://itnext.io/debugging-kubernetes-pvcs-a150f5efbe95
