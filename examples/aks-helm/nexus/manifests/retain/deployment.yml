@@ -1,0 +1,47 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: nexus
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nexus
+    spec:
+      volumes:
+        - name: nexus-data
+          persistentVolumeClaim:
+            claimName: azure-pvc
+
+      # https://hub.docker.com/r/sonatype/nexus3/#persistent-data
+      # A persistent directory, /nexus-data, is used for configuration, logs, and storage. This directory needs to
+      # be writable by the Nexus process, which runs as UID 200.
+      initContainers:
+        - name: fmp-volume-permission
+          image: busybox
+          imagePullPolicy: IfNotPresent
+          command: ['chown','-R', '200', '/nexus-data']
+          volumeMounts:
+            - name: nexus-data
+              mountPath: /nexus-data
+
+      containers:
+        - name: nexus
+
+          image: sonatype/nexus3
+
+          ports:
+          - containerPort: 8081
+
+          volumeMounts:
+            - name: nexus-data
+              mountPath: /nexus-data
+
+          # resources:
+          #   requests:
+          #     cpu: 250m
+          #     memory: 4800Mi
+          #   limits:
+          #     cpu: 250m
+          #     memory: 4800Mi
