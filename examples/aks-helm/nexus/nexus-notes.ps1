@@ -1,23 +1,29 @@
 # Deploy Nexus on AKS
 throw "do not run whole script; F8 sections as required"
 
-#region Kubectl
+#region Connect Kubectl
+# Vars
+$resourceGroupName = "<ResourceGroupName>"
+$aksClusterName = "<AksClusterName>"
+# standard | retain | stateful (this is best to retain data across deployments)
+$manifestFolderName = "stateful"
+
 # Get AKS k8s creds
-az aks get-credentials --resource-group <ResourceGroupName> --name <AksClusterName> --overwrite-existing
+az aks get-credentials --resource-group $resourceGroupName --name $aksClusterName --overwrite-existing
 
 # Open AKS k8s dashboard
-az aks browse --resource-group <ResourceGroupName> --name <AksClusterName>
+az aks browse --resource-group $resourceGroupName --name $aksClusterName
 
 # Show resources
 kubectl get nodes
 kubectl get ns
 kubectl get sc
 kubectl get all
-#endregion Kubectl
+#endregion Connect Kubectl
 
 
 
-#region Nexus Custom
+#region Deploy Nexus
 # https://help.sonatype.com/repomanager3/formats/nuget-repositories
 
 # AKS Container Insights is awesome - view live data
@@ -37,11 +43,11 @@ kubectl get sc default -o yaml --export
 https://docs.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes
 
 # Apply manifests
-kubectl apply --validate -f ./manifests/standard
+kubectl apply --validate -f ./manifests/$manifestFolderName
 
 # Check
 kubectl get sc,pvc,pv,all
-kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl get events --sort-by=.metadata.creationTimestamp -w
 $podName = kubectl get pod -l app=nexus -o jsonpath="{.items[0].metadata.name}"
 kubectl describe pod $podName
 kubectl top pod $podName
@@ -51,6 +57,8 @@ kubectl get pod $podName --watch
 kubectl get svc nexus --watch
 
 # View container (Nexus application) logs
+kubectl logs $podName
+# Follow (tail) logs
 kubectl logs -f $podName
 
 # Assemble and show App URL
@@ -67,8 +75,11 @@ echo -e "\nadmin password: \n$(cat /nexus-data/admin.password)\n"
 cat /etc/passwd | grep nexus
 
 # Show persistent data folder mount info (eg. /nexus-data)
-df -h | grep nexus
+# Check available disk space on mount
+df -h | grep -iE "Use%|nexus"
+# Check perms and owner
 ls -lah / | grep nexus
+# Show data files
 ls -lah /nexus-data
 
 # Get NuGet API token from Nexus
@@ -84,7 +95,6 @@ $repoUrl = "http://$nexusUri/repository/nuget-hosted/"
 $repoName = "MyNugetRepo"
 Unregister-PSRepository -Name $repoName
 Register-PSRepository -Name $repoName -SourceLocation $repoUrl -PublishLocation $repoUrl -PackageManagementProvider "nuget" -InstallationPolicy "Trusted"
-
 Get-PSRepository
 
 # Publish modules
@@ -95,20 +105,46 @@ Find-Module -Repository $repoName
 
 # Show modules in Nexus repo
 start "http://$nexusUri/#browse/browse:nuget-hosted"
+#endregion Deploy Nexus
 
 
 
-# CLEANUP
+# BACKUP / RESTORE
+# https://docs.microsoft.com/en-us/azure/aks/azure-disks-dynamic-pv#back-up-a-persistent-volume
+
+
+
+#region SCALE
+# Scale down StatefulSet
+kubectl get statefulsets
+kubectl scale statefulsets nexus --replicas 0
+kubectl get all,pvc,pv
+
+# Scale up StatefulSet
+kubectl scale statefulsets nexus --replicas 1
+# Check
+kubectl get sc,pvc,pv,all
+kubectl get events --sort-by=.metadata.creationTimestamp
+$podName = kubectl get pod -l app=nexus -o jsonpath="{.items[0].metadata.name}"
+kubectl describe pod $podName
+# Wait for pod to be ready
+kubectl get pod $podName --watch
+#endregion SCALE
+
+
+
+#region CLEANUP
 # [OPTIONAL] Delete only Deployment (pvc and service remains)
-kubectl delete -f ./manifests/standard/deployment.yml
+kubectl delete -f ./manifests/$manifestFolderName/deployment.yml
 # Delete manifests
-kubectl delete -f ./manifests/standard
+kubectl delete -f ./manifests/$manifestFolderName
+kubectl get events --sort-by=.metadata.creationTimestamp --watch
 
 # NOTE: Persistent Volume and Persistent Volume Claims may not be deleted
-# Get and delete Persistent Volume Claims:
+# Get and delete Persistent Volume Claims
 kubectl get pvc,pv -A
 kubectl delete pvc,pv -A --all
 
 # Check
 kubectl get all,pvc,pv
-#endregion Nexus Custom
+#endregion CLEANUP
