@@ -3,7 +3,7 @@ variable "location" {
 }
 
 variable "agent_pool_count" {
-  default = 3
+  default = 2
 }
 
 variable "agent_pool_profile_vm_size" {

@@ -9,7 +9,9 @@ az aks get-credentials --resource-group <ResourceGroupName> --name <AksClusterNa
 az aks browse --resource-group <ResourceGroupName> --name <AksClusterName>
 
 # Show resources
+kubectl get nodes
 kubectl get ns
+kubectl get sc
 kubectl get all
 #endregion Kubectl
 
@@ -22,25 +24,31 @@ kubectl get all
 start https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/containerInsights/menuId/containerInsights
 
 # Prepare
-cd nexus
+cd examples/aks-helm/nexus
 # kubectl create namespace nexus
 kubectl get ns
 kubectl get all,pv,pvc #-n nexus
 
-# Check
-kubectl get events --sort-by=.metadata.creationTimestamp
+# Custom Storage Class
+# Show default yaml
+kubectl get sc default -o yaml --export
+
+# Create custom storage class (with "reclaimPolicy: Retain")
+https://docs.microsoft.com/en-us/azure/aks/concepts-storage#storage-classes
 
 # Apply manifests
-kubectl apply -f ./manifests
+kubectl apply --validate -f ./manifests/standard
 
 # Check
-kubectl get all
+kubectl get sc,pvc,pv,all
+kubectl get events --sort-by=.metadata.creationTimestamp
 $podName = kubectl get pod -l app=nexus -o jsonpath="{.items[0].metadata.name}"
 kubectl describe pod $podName
 kubectl top pod $podName
 
 # Wait for pod to be ready
 kubectl get pod $podName --watch
+kubectl get svc nexus --watch
 
 # View container (Nexus application) logs
 kubectl logs -f $podName
@@ -54,7 +62,6 @@ start $appurl
 # Connect to pod and output generated admin password
 kubectl exec -it $podName /bin/bash
 echo -e "\nadmin password: \n$(cat /nexus-data/admin.password)\n"
-
 
 # Show nexus user details (should have UID 200)
 cat /etc/passwd | grep nexus
@@ -75,6 +82,7 @@ start "http://$nexusUri/#admin/security/realms"
 # Register Nuget feed as PowerShell repository
 $repoUrl = "http://$nexusUri/repository/nuget-hosted/"
 $repoName = "MyNugetRepo"
+Unregister-PSRepository -Name $repoName
 Register-PSRepository -Name $repoName -SourceLocation $repoUrl -PublishLocation $repoUrl -PackageManagementProvider "nuget" -InstallationPolicy "Trusted"
 
 Get-PSRepository
@@ -89,9 +97,18 @@ Find-Module -Repository $repoName
 start "http://$nexusUri/#browse/browse:nuget-hosted"
 
 
+
 # CLEANUP
+# [OPTIONAL] Delete only Deployment (pvc and service remains)
+kubectl delete -f ./manifests/standard/deployment.yml
 # Delete manifests
-kubectl delete -f ./manifests
-# Delete only Deployment (pvc and service remains)
-kubectl delete -f ./manifests/deployment.yml
+kubectl delete -f ./manifests/standard
+
+# NOTE: Persistent Volume and Persistent Volume Claims may not be deleted
+# Get and delete Persistent Volume Claims:
+kubectl get pvc,pv -A
+kubectl delete pvc,pv -A --all
+
+# Check
+kubectl get all,pvc,pv
 #endregion Nexus Custom
