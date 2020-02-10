@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  # Can also use: storageClassName: managed-premium, default
+  storageClassName: managed-standard-retain
+  resources:
+    requests:
+      storage: 8Gi
