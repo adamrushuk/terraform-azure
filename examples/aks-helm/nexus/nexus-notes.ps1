@@ -31,9 +31,12 @@ start https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/AzureMonitoring
 
 # Prepare
 cd examples/aks-helm/nexus
-# kubectl create namespace nexus
+kubectl create namespace nexus-custom
+# permanently save the namespace for all subsequent kubectl commands in that context
+kubectl config set-context --current --namespace=nexus-custom
+kubectl config -h
 kubectl get ns
-kubectl get all,pv,pvc #-n nexus
+kubectl get all,pv,pvc
 
 # Custom Storage Class
 # Show default yaml

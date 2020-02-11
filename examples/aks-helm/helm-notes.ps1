@@ -19,7 +19,7 @@ kubectl get all
 # Install helm client
 choco install -y kubernetes-helm
 
-# Install Nexus
+# Add Nexus repo
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 helm repo list
 helm repo update
@@ -30,23 +30,28 @@ helm repo update
 #region Nexus Helm
 # Prepare
 cd nexus
+kubectl create namespace nexus-helm
+# permanently save the namespace for all subsequent kubectl commands in that context
+kubectl config set-context --current --namespace=nexus-helm
 helm pull stable/sonatype-nexus
 
 # Install / upgrade (--atomic will roll back if any issues during install / upgrade)
-helm upgrade -f nexus_values.yaml --install nexus stable/sonatype-nexus --atomic --dry-run
-helm upgrade -f nexus_values.yaml --install nexus stable/sonatype-nexus --dry-run
-helm upgrade -f nexus_values.yaml --install nexus stable/sonatype-nexus
+helm upgrade -n nexus-helm -f nexus_values.yaml --install nexus stable/sonatype-nexus --atomic --dry-run
+helm upgrade -n nexus-helm -f nexus_values.yaml --install nexus stable/sonatype-nexus --dry-run
+helm upgrade -n nexus-helm -f nexus_values.yaml --install nexus stable/sonatype-nexus
 
 # Verify
 helm list
 helm search hub nexus
+kubectl get all,pv,pvc
 
 # Monitor build
 kubectl get ingress -o jsonpath='{.items[*].metadata.annotations.ingress\.kubernetes\.io/backends}'
 
 # Port forward
 # Find the name of your Nexus Pod
-kubectl get pods ()
+kubectl get pods
+kubectl get all
 kubectl port-forward <PodName> 8081:8081
 
 # Uninstall
