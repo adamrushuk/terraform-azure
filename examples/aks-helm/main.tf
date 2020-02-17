@@ -44,11 +44,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
   dns_prefix          = local.aks_cluster_name
 
   default_node_pool {
-    name            = "default"
-    type            = "VirtualMachineScaleSets"
-    node_count      = var.agent_pool_count
-    vm_size         = var.agent_pool_profile_vm_size
-    os_disk_size_gb = var.agent_pool_profile_disk_size_gb
+    name                = "default"
+    type                = "VirtualMachineScaleSets"
+    node_count          = var.agent_pool_node_count
+    vm_size             = var.agent_pool_profile_vm_size
+    os_disk_size_gb     = var.agent_pool_profile_disk_size_gb
+    enable_auto_scaling = var.agent_pool_enable_auto_scaling
+    min_count           = var.agent_pool_node_min_count
+    max_count           = var.agent_pool_node_max_count
   }
 
   linux_profile {
@@ -82,6 +85,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   lifecycle {
     ignore_changes = [
       service_principal,
+      default_node_pool[0].node_count,
       # addon_profile,
     ]
   }

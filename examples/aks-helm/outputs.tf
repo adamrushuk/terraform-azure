@@ -6,9 +6,9 @@
 #   value = azurerm_kubernetes_cluster.aks.kube_config_raw
 # }
 
-# output "aks_config" {
-#   value = azurerm_kubernetes_cluster.aks
-# }
+output "aks_config" {
+  value = azurerm_kubernetes_cluster.aks
+}
 
 # output "helm_release" {
 #   value = helm_release.nexus

@@ -2,8 +2,16 @@ variable "location" {
   default = "uksouth"
 }
 
-variable "agent_pool_count" {
-  default = 2
+variable "agent_pool_node_count" {
+  default = 1
+}
+
+variable "agent_pool_node_min_count" {
+  default = 1
+}
+
+variable "agent_pool_node_max_count" {
+  default = 3
 }
 
 variable "agent_pool_profile_vm_size" {
@@ -16,6 +24,10 @@ variable "agent_pool_profile_os_type" {
 
 variable "agent_pool_profile_disk_size_gb" {
   default = 30
+}
+
+variable "agent_pool_enable_auto_scaling" {
+  default = true
 }
 
 variable "enable_aks_dashboard" {

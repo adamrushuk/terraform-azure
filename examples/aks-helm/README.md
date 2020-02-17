@@ -21,11 +21,23 @@ terraform plan -out=tfplan
 
 # Apply
 terraform apply tfplan
+
+# Show outputs from state file
+terraform output
 ```
 
 ## Test
 
 See `nexus/nexus-notes.ps1` for test commands and notes.
+
+Retrieve cluster autoscaler logs and status:  
+- https://docs.microsoft.com/en-gb/azure/aks/view-master-logs#enable-diagnostics-logs
+- https://docs.microsoft.com/en-gb/azure/aks/cluster-autoscaler#retrieve-cluster-autoscaler-logs-and-status 
+
+```log
+AzureDiagnostics
+| where Category == "cluster-autoscaler"
+```
 
 ## Destroy
 
