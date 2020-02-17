@@ -18,7 +18,10 @@ az aks browse --resource-group $resourceGroupName --name $aksClusterName
 kubectl get nodes
 kubectl get ns
 kubectl get sc
+kubectl get pvc,pv
+kubectl get pods
 kubectl get all
+kubectl get all -A
 #endregion Connect Kubectl
 
 
@@ -99,9 +102,10 @@ $repoName = "MyNugetRepo"
 Unregister-PSRepository -Name $repoName
 Register-PSRepository -Name $repoName -SourceLocation $repoUrl -PublishLocation $repoUrl -PackageManagementProvider "nuget" -InstallationPolicy "Trusted"
 Get-PSRepository
+Install-Module packagemanagement,powershellget -Verbose
 
 # Publish modules
-"Az.Advisor", "Az.Aks" | ForEach-Object { Publish-Module -Name "$env:OneDrive\Documents\PowerShell\Modules\$_" -Repository $repoName -NuGetApiKey $nuGetApiKey -Verbose }
+"Az.Advisor", "Az.Aks" | ForEach-Object { Publish-Module -Name "$env:HOME\Documents\PowerShell\Modules\$_" -Repository $repoName -NuGetApiKey $nuGetApiKey -Verbose }
 
 # Find modules
 Find-Module -Repository $repoName
