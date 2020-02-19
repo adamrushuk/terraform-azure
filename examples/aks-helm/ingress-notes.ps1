@@ -105,4 +105,10 @@ Start-Process https://$fqdn/hello-world-two
 
 #region Cleanup
 kubectl delete namespace ingress-basic
+helm repo remove azure-samples
+
+
+kubectl get all,pv,pvc --namespace ingress-basic
+helm repo list --namespace ingress-basic
+helm list --namespace ingress-basic
 #end
