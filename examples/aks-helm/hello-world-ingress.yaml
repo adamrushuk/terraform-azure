@@ -1,0 +1,49 @@
+# Replace "MY_CUSTOM_DOMAIN" with nginx-nginx-ingress-controller LoadBalancer EXTERNAL-IP,
+# eg. "51.140.119.69" becomes "51-140-119-69.nip.io"
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - hello-world-ingress.MY_CUSTOM_DOMAIN
+    secretName: tls-secret
+  rules:
+  - host: hello-world-ingress.MY_CUSTOM_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: aks-helloworld
+          servicePort: 80
+        path: /(.*)
+      - backend:
+          serviceName: aks-helloworld-two
+          servicePort: 80
+        path: /hello-world-two(/|$)(.*)
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-world-ingress-static
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /static/$2
+    cert-manager.io/cluster-issuer: letsencrypt
+spec:
+  tls:
+  - hosts:
+    - hello-world-ingress.MY_CUSTOM_DOMAIN
+    secretName: tls-secret
+  rules:
+  - host: hello-world-ingress.MY_CUSTOM_DOMAIN
+    http:
+      paths:
+      - backend:
+          serviceName: aks-helloworld
+          servicePort: 80
+        path: /static(/|$)(.*)
