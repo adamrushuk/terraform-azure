@@ -78,9 +78,10 @@ kubectl get svc --namespace ingress-basic
 #region Create an ingress route
 # Update MY_CUSTOM_DOMAIN placeholder with nginx-nginx-ingress-controller LoadBalancer EXTERNAL-IP,
 # eg. "51.140.119.69" becomes "51-140-119-69.nip.io"
-# TODO get External IP from kubectl command
+$ingressExternalIp = kubectl get svc nginx-nginx-ingress-controller --namespace ingress-basic -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
+$ingressExternalIpToRevDomain = ($ingressExternalIp -replace "\.","-") + ".nip.io"
 $ingressFilename = "hello-world-ingress.yaml"
-(Get-Content $ingressFilename -Raw) -replace "MY_CUSTOM_DOMAIN", "51-140-119-69.nip.io" | Set-Content $ingressFilename
+(Get-Content $ingressFilename -Raw) -replace "MY_CUSTOM_DOMAIN", $ingressExternalIpToRevDomain | Set-Content $ingressFilename
 
 # Create resource
 kubectl apply -f hello-world-ingress.yaml --namespace ingress-basic

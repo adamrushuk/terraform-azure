@@ -1,5 +1,5 @@
 # Replace "MY_CUSTOM_DOMAIN" with nginx-nginx-ingress-controller LoadBalancer EXTERNAL-IP,
-# eg. "51.140.119.69" becomes "app-51-140-119-69.nip.io"
+# eg. "51.140.119.69" becomes "51-140-119-69.nip.io"
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
