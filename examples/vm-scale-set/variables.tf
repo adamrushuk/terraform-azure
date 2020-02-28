@@ -7,7 +7,7 @@ variable "admin_username" {}
 variable "admin_password" {}
 
 variable "address_space" {
-  type = "list"
+  type = list
 }
 
 variable "vm_image_publisher" {}
