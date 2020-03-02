@@ -67,3 +67,8 @@ az vmss extension set `
 
 # Upgrade ALL instances in the scale set with the new key
 az vmss update-instances --instance-ids '*' -n $scaleset_name -g $resource_group_name
+
+
+
+# Cleanup
+az group delete --name $resource_group_name
